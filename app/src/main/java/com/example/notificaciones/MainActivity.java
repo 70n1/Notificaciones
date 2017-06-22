@@ -80,6 +80,13 @@ public class MainActivity extends AppCompatActivity {
                 int idNotificacion2 = 002;
                 Notification notificacion2 = new NotificationCompat.Builder(MainActivity.this).setContentTitle("Nueva Conferencia").setContentText("Los neutrinos").setSmallIcon(R.mipmap.ic_action_mail_add).setGroup(MI_GRUPO_DE_NOTIFIC).build();
                 notificationManager.notify(idNotificacion2, notificacion2);
+
+                // Creamos una notificacion resumen
+                int idNotificacion3 = 003;
+                Notification notificacion3 = new NotificationCompat.Builder(MainActivity.this).setContentTitle("2 notificaciones UPV").setSmallIcon(R.mipmap.ic_action_attach)
+                        .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.escudo_upv)).setStyle(new NotificationCompat.InboxStyle().addLine("Nueva Conferencia Los neutrinos").addLine("Nuevo curso Android Wear").setBigContentTitle("2 notificaciones UPV").setSummaryText("info@upv.es")).setNumber(2)
+                        .setGroup(MI_GRUPO_DE_NOTIFIC) .setGroupSummary(true) .build(); notificationManager.notify(idNotificacion3, notificacion3);
+
             }
         });
     }
