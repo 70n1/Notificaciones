@@ -5,19 +5,23 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.app.RemoteInput;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 import android.text.Html;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String EXTRA_RESPUESTA_POR_VOZ = "extra_respuesta_por_voz";
     final static String MI_GRUPO_DE_NOTIFIC = "mi_grupo_de_notific";
 
     @Override
@@ -25,6 +29,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        //Miramos si hemos recibido una respuesta por voz
+        Bundle respuesta = RemoteInput.getResultsFromIntent(getIntent());
+        if (respuesta != null) {
+            CharSequence texto = respuesta.getCharSequence(EXTRA_RESPUESTA_POR_VOZ);
+            ((TextView) findViewById(R.id.textViewRespuesta)).setText(texto);
+        }
+
 
         Button wearButton = (Button) findViewById(R.id.boton1);
         wearButton.setOnClickListener(new View.OnClickListener() {
@@ -85,8 +97,31 @@ public class MainActivity extends AppCompatActivity {
                 int idNotificacion3 = 003;
                 Notification notificacion3 = new NotificationCompat.Builder(MainActivity.this).setContentTitle("2 notificaciones UPV").setSmallIcon(R.mipmap.ic_action_attach)
                         .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.escudo_upv)).setStyle(new NotificationCompat.InboxStyle().addLine("Nueva Conferencia Los neutrinos").addLine("Nuevo curso Android Wear").setBigContentTitle("2 notificaciones UPV").setSummaryText("info@upv.es")).setNumber(2)
-                        .setGroup(MI_GRUPO_DE_NOTIFIC) .setGroupSummary(true) .build(); notificationManager.notify(idNotificacion3, notificacion3);
+                        .setGroup(MI_GRUPO_DE_NOTIFIC).setGroupSummary(true).build();
+                notificationManager.notify(idNotificacion3, notificacion3);
 
+            }
+        });
+
+        Button butonVoz = (Button) findViewById(R.id.boton_voz);
+        butonVoz.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Creamos una intención de respuesta
+                Intent intencion = new Intent(MainActivity.this, MainActivity.class);
+                PendingIntent intencionPendiente = PendingIntent.getActivity(MainActivity.this, 0, intencion, PendingIntent.FLAG_UPDATE_CURRENT);
+                // Creamos la entrada remota para añadirla a la acción
+                RemoteInput entradaRemota = new RemoteInput.Builder(EXTRA_RESPUESTA_POR_VOZ).setLabel("respuesta por voz").build();
+                // Creamos la acción
+                NotificationCompat.Action accion = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_set_as, "responder", intencionPendiente).addRemoteInput(entradaRemota).build();
+
+                // Creamos la notificación
+                int idNotificacion = 002;
+                NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(MainActivity.this).setSmallIcon(R.mipmap.ic_launcher).setContentTitle("Respuesta por Voz").setContentText("Indica una respuesta").extend(new NotificationCompat.WearableExtender().addAction(accion));
+
+                // Lanzamos la notificación
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.this);
+                notificationManager.notify(idNotificacion, notificationBuilder.build());
             }
         });
     }
