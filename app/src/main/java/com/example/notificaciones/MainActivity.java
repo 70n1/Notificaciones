@@ -2,6 +2,8 @@ package com.example.notificaciones;
 
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -12,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -22,6 +25,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     public static final String EXTRA_RESPUESTA_POR_VOZ = "extra_respuesta_por_voz";
+    public static final String EXTRA_MESSAGE = "com.example.notificaciones.EXTRA_MESSAGE";
+    public static final String ACTION_DEMAND = "com.example.notificaciones.ACTION_DEMAND";
     final static String MI_GRUPO_DE_NOTIFIC = "mi_grupo_de_notific";
 
     @Override
@@ -112,7 +117,34 @@ public class MainActivity extends AppCompatActivity {
                 PendingIntent intencionPendiente = PendingIntent.getActivity(MainActivity.this, 0, intencion, PendingIntent.FLAG_UPDATE_CURRENT);
 
                 // Creamos la entrada remota para añadirla a la acción
-                String[] opcRespuesta = getResources().getStringArray(R.array .opciones_respuesta);
+                String[] opcRespuesta = getResources().getStringArray(R.array.opciones_respuesta);
+                RemoteInput entradaRemota = new RemoteInput.Builder(EXTRA_RESPUESTA_POR_VOZ).setLabel("respuesta por voz").setChoices(opcRespuesta).build();
+
+                // Creamos la acción
+                NotificationCompat.Action accion = new NotificationCompat.Action.Builder(android.R.drawable.ic_menu_set_as, "responder", intencionPendiente).addRemoteInput(entradaRemota).build();
+
+                // Creamos la notificación
+                int idNotificacion = 002;
+                NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(MainActivity.this).setSmallIcon(R.mipmap.ic_launcher).setContentTitle("Respuesta por Voz").setContentText("Indica una respuesta").extend(new NotificationCompat.WearableExtender().addAction(accion));
+
+                // Lanzamos la notificación
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.this);
+                notificationManager.notify(idNotificacion, notificationBuilder.build());
+            }
+        });
+
+
+        Button butonVozAnuncio = (Button) findViewById(R.id.boton_voz_anuncio);
+        butonVozAnuncio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Creamos una intención de respuesta
+
+                Intent intencion = new Intent(MainActivity.this, WearReceiver.class).putExtra(EXTRA_MESSAGE, "alguna información relevante").setAction(ACTION_DEMAND);
+                PendingIntent intencionPendiente = PendingIntent.getBroadcast(MainActivity.this, 0, intencion, 0);
+
+                // Creamos la entrada remota para añadirla a la acción
+                String[] opcRespuesta = getResources().getStringArray(R.array.opciones_respuesta);
                 RemoteInput entradaRemota = new RemoteInput.Builder(EXTRA_RESPUESTA_POR_VOZ).setLabel("respuesta por voz").setChoices(opcRespuesta).build();
 
                 // Creamos la acción
@@ -129,3 +161,4 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 }
+

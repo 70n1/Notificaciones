@@ -28,4 +28,11 @@
         android:text="..."
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+
+    <Button
+        android:id="@+id/boton_voz_anuncio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Respuesta por voz (anuncio broadcast)" />
+
 </LinearLayout>
